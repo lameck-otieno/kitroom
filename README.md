@@ -7,7 +7,7 @@
 
 KitRoom helps an equipment officer keep track of shared sports equipment (footballs, cone sets and bib sets). In version 0.1 you enter the stock of one item, record one transaction (issue or return), and the program updates the available quantity, shows how many items are still out, and warns you when stock is low.
 
-This project is for **STU 1201: Introduction to Programming** (CAT 1: Program Implementation) at KCA University. It implements the core processing part of the KitRoom concept from Assignment 1, which was inspired by how equipment is tracked in a notebook at a student sports club.
+This project is for **STU 1201: Introduction to Programming** (CAT 1: Program Implementation) at KCA University. It implements the KitRoom design from Assignment 1, which was inspired by how equipment is tracked in a notebook at a student sports club.
 
 ## Contents
 
@@ -30,7 +30,7 @@ This project is for **STU 1201: Introduction to Programming** (CAT 1: Program Im
 - **Issues** equipment (subtracts from the available quantity) or **returns** equipment (adds back).
 - Calculates how many items are out: `out = total - available`.
 - Shows the percentage of the stock that is in the store.
-- Shows one of three messages about the stock level: a **LOW STOCK** warning, "all items are back", or "stock level is fine".
+- Shows one of three messages about the stock level: "all items are back" when nothing is out, a **LOW STOCK** warning when something is out and the store is down to the low-stock limit or less, or "stock level is fine".
 - Checks the input and shows a clear error message when something is wrong, including trying to issue more than is available or return more than is out.
 
 ## Requirements
@@ -154,8 +154,9 @@ Run `./kitroom` and enter the values below, one at a time, pressing Enter after 
 | 7 | `F`, `0` | "Error: the total must be from 1 to 10000." |
 | 8 | `F`, `10`, `10`, `3` | "Error: the action must be 1 or 2." |
 | 9 | `F`, `10`, `10`, `1`, `0` | "Error: the quantity must be at least 1." |
+| 10 | `C`, `2`, `1`, `2`, `1` | "Equipment returned: 1". Available 2, Out 0, In store 100.0%. "All items are back in the store." (not the low-stock warning, even though 2 is within the low-stock limit) |
 
-Rows 1 to 3 show the three different stock-level messages. Rows 4 to 9 show the input checks.
+Rows 1 to 3 show the three different stock-level messages. Row 10 checks that "all items are back" wins over the low-stock warning when nothing is out. Rows 4 to 9 show the input checks.
 
 ## Configuration
 
@@ -163,7 +164,7 @@ These constants are at the top of `kitroom.c`. Change them and compile again.
 
 | Constant | Default | Meaning |
 | --- | --- | --- |
-| `LOW_STOCK` | `2` | A warning appears when the available quantity is this number or less |
+| `LOW_STOCK` | `2` | A warning appears when the available quantity is this number or less and some items are still out |
 | `MAX_STOCK` | `10000` | The biggest total allowed for one item |
 
 ## Project structure
@@ -202,7 +203,7 @@ The project grows with the syllabus. Each stage adds one new idea, and the order
 | **0.4** | Planned | Functions | Code split into functions (issue, return, show stock, input checking) |
 | **0.5** | Planned | File handling | Stock and borrowing history saved to text files and loaded when the program starts, plus a "view history" option |
 
-The final goal is the full KitRoom design from Assignment 1: a menu-driven program with saved stock, a borrowing history, and checks against over-issuing and over-returning.
+Version 0.1 is the design described in Assignment 1. The later versions are planned extensions that go beyond it: a menu-driven program that tracks all three items at once, saves the stock, and keeps a borrowing history.
 
 ## Author
 
