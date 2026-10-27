@@ -5,9 +5,9 @@
    Student    : Lameck Odhiambo Otieno (Reg No: 17/00207)
 
    What the program does:
-   This is the core of the KitRoom idea from Assignment 1. The equipment
-   officer of a student sports club enters the stock of ONE item, then
-   records ONE transaction (issue or return). The program updates the
+   This program implements the KitRoom design from Assignment 1. The
+   equipment officer of a student sports club enters the stock of ONE item,
+   then records ONE transaction (issue or return). The program updates the
    available quantity, works out how many items are still out
    (out = total - available), shows the percentage still in the store, and
    warns when the stock is low.
@@ -28,10 +28,12 @@
    - Constants:        #define LOW_STOCK and #define MAX_STOCK
    - Data types:       int, char and float
    - Variables:        declared with a starting value
-   - Operators:        arithmetic (- + * /), relational (< > <= >= ==),
-                       logical (||), assignment (=) and a typecast (float)
+   - Operators:        arithmetic (- + * /), relational (< > <= >= == !=),
+                       logical (|| &&), assignment (=) and a typecast (float)
    - Input/output:     printf() and scanf()
-   - Selection:        if, else if and else
+   - Selection:        if, else if, else and nested if
+   - Program exit:     return 0 (normal end) and return 1 (stopped after an
+                       error)
 */
 
 #include <stdio.h>
@@ -156,14 +158,16 @@ int main()
     printf("Out:       %d\n", out);
     printf("In store:  %.1f%%\n", percent);
 
-    /* Selection: three different outcomes for the stock level */
-    if (available <= LOW_STOCK)
-    {
-        printf("WARNING: LOW STOCK! Only %d left in the store.\n", available);
-    }
-    else if (out == 0)
+    /* Selection: three different outcomes for the stock level.
+       "All back" is checked first, so a small stock with nothing out is not
+       reported as low. */
+    if (out == 0)
     {
         printf("All items are back in the store.\n");
+    }
+    else if (available <= LOW_STOCK)
+    {
+        printf("WARNING: LOW STOCK! Only %d left in the store.\n", available);
     }
     else
     {
