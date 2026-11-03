@@ -1,16 +1,16 @@
 # KitRoom
-
+ 
 **An equipment stock and lending checker for a student sports club, written in C.**
-
-> **Status: work in progress (version 0.1).**
-> This project is being built in stages as the STU 1201 syllabus advances. Version 0.1 uses only the C features covered in class so far, so it is deliberately small. More advanced features will be added as each topic is taught. See the [Roadmap](#roadmap) for the plan.
-
-KitRoom helps an equipment officer keep track of shared sports equipment (footballs, cone sets and bib sets). In version 0.1 you enter the stock of one item, record one transaction (issue or return), and the program updates the available quantity, shows how many items are still out, and warns you when stock is low.
-
-This project is for **STU 1201: Introduction to Programming** (CAT 1: Program Implementation) at KCA University. It implements the KitRoom design from Assignment 1, which was inspired by how equipment is tracked in a notebook at a student sports club.
-
+ 
+> **Status: version 0.4 (Assignment II).**
+> This project is built in stages as the STU 1201 syllabus advances. Version 0.4 is a menu-driven program that keeps several equipment records in an array of structures and uses user-defined functions. Records are still kept in memory only. See the [Roadmap](#roadmap) for what comes next.
+ 
+KitRoom helps an equipment officer keep track of shared sports equipment such as footballs, cone sets and bib sets. You add the equipment the club owns, then issue and return it as it is borrowed. The program keeps every record up to date, works out how many items are out, and warns you when stock is low.
+ 
+This project is for **STU 1201: Introduction to Programming** at KCA University. Version 0.1 was CAT I (Program Implementation). Version 0.4 is **Assignment II: Multiple Records and Modular Programming**. Both come from the KitRoom design in Assignment 1, which was inspired by how equipment is tracked in a notebook at a student sports club.
+ 
 ## Contents
-
+ 
 - [What it does now](#what-it-does-now)
 - [Requirements](#requirements)
 - [Getting started](#getting-started)
@@ -18,194 +18,258 @@ This project is for **STU 1201: Introduction to Programming** (CAT 1: Program Im
 - [Input checks (validation)](#input-checks-validation)
 - [Trying it out](#trying-it-out)
 - [Configuration](#configuration)
+- [How the program is organised](#how-the-program-is-organised)
 - [Project structure](#project-structure)
 - [Known limitations](#known-limitations)
 - [Roadmap](#roadmap)
 - [Author](#author)
-
 ## What it does now
-
-- Lets you choose one of three items: **Football**, **Cone set** or **Bibs set**.
-- Asks for the total quantity the club owns and how many are in the store now.
-- **Issues** equipment (subtracts from the available quantity) or **returns** equipment (adds back).
-- Calculates how many items are out: `out = total - available`.
-- Shows the percentage of the stock that is in the store.
-- Shows one of three messages about the stock level: "all items are back" when nothing is out, a **LOW STOCK** warning when something is out and the store is down to the low-stock limit or less, or "stock level is fine".
-- Checks the input and shows a clear error message when something is wrong, including trying to issue more than is available or return more than is out.
-
+ 
+- Shows a **menu that repeats** until you choose Exit, so you can do as many transactions as you like in one run.
+- **Adds** equipment records (up to 10). Each record has a one-letter code, a name (spaces allowed), the total quantity owned and the quantity available.
+- **Displays** all records in a table with the quantity out.
+- **Searches** for an item by its code and shows its stock level, including the percentage in the store.
+- **Issues** equipment (subtracts from the available quantity) and **returns** equipment (adds back).
+- Shows a **summary**: the number of item types, units owned, units in store, units out and a list of low-stock items.
+- Calculates `out = total - available` and the percentage in store when they are needed, so these values can never disagree with the stored quantities.
+- Checks every input and **asks again** instead of stopping when something is wrong.
 ## Requirements
-
+ 
 - A C compiler such as **GCC**.
 - Works on Linux, macOS and Windows with **WSL**. It only uses the standard `stdio.h` library.
-
 ## Getting started
-
+ 
 ### 1. Get the code
-
+ 
 ```bash
 git clone https://github.com/lameck-otieno/kitroom.git
 cd kitroom
 ```
-
+ 
 ### 2. Install a compiler (first time only)
-
+ 
 On Ubuntu or WSL:
-
+ 
 ```bash
 sudo apt update
 sudo apt install build-essential
 gcc --version
 ```
-
+ 
 On macOS, run `xcode-select --install`.
-
+ 
 ### 3. Compile
-
+ 
 ```bash
-gcc -Wall -Wextra kitroom.c -o kitroom
+gcc -Wall -Wextra -o kitroom kitroom.c
 ```
-
+ 
 The `-Wall -Wextra` flags turn on extra compiler warnings, which help catch mistakes. If nothing is printed, it compiled with no warnings.
-
+ 
 ### 4. Run
-
+ 
 ```bash
 ./kitroom
 ```
-
+ 
 ### Running in WSL after downloading the file in Windows
-
+ 
 Your Windows drives appear under `/mnt/c/` in WSL. For example:
-
+ 
 ```bash
 cd /mnt/c/Users/YourName/Downloads
 mkdir -p ~/kitroom
 cp kitroom.c ~/kitroom/
 cd ~/kitroom
-gcc -Wall -Wextra kitroom.c -o kitroom
+gcc -Wall -Wextra -o kitroom kitroom.c
 ./kitroom
 ```
-
+ 
 Replace `YourName` with your Windows username. Working inside the Linux file system (`~`) is faster than working in `/mnt/c`.
-
+ 
 ## How to use it
-
-The program asks its questions in this order:
-
-1. **Item:** `F` (Football), `C` (Cone set) or `B` (Bibs set). Capital or small letters both work.
-2. **Total quantity** the club owns, from 1 to 10000.
-3. **Quantity in the store now**, from 0 up to the total.
-4. **Action:** `1` to issue or `2` to return.
-5. **Quantity** for this transaction.
-
-Then it shows the updated stock. Each run handles **one transaction**. To record another one, run the program again.
-
+ 
+The program shows this menu and asks for a number from 0 to 6:
+ 
+| Choice | What it does |
+| --- | --- |
+| `1` | **Add an item.** Asks for a code (one letter), a name, the total quantity and the quantity in the store. |
+| `2` | **Display all items** in a table with the quantity out. |
+| `3` | **Search for an item** by its code. |
+| `4` | **Issue equipment.** Asks for a code and a quantity, and subtracts it from the available quantity. |
+| `5` | **Return equipment.** Asks for a code and a quantity, and adds it back. |
+| `6` | **Show summary** of all items. |
+| `0` | **Exit.** |
+ 
+Item codes can be capital or small letters. Small letters are changed to capitals, so `f` and `F` are the same item.
+ 
+Records are lost when you exit, so add your items again each time you run the program.
+ 
 ### Example
-
+ 
 ```
-=== KitRoom: Equipment Stock Checker ===
-
-Item (F = Football, C = Cone set, B = Bibs set): C
-You chose: Cone set
-Total quantity the club owns (1 to 10000): 5
-Quantity in the store now (0 to 5): 5
-Currently out: 0
-
-Action (1 = Issue, 2 = Return): 1
-Quantity: 3
-
-Equipment issued: 3
-
---- Updated stock ---
-Total:     5
-Available: 2
-Out:       3
-In store:  40.0%
+=== KitRoom v0.4: Equipment Stock Checker ===
+1. Add an item
+2. Display all items
+3. Search for an item
+4. Issue equipment
+5. Return equipment
+6. Show summary
+0. Exit
+Choice (0 to 6): 1
+Item code: C
+Item name: Cone set
+Total quantity (1 to 10000): 20
+Quantity in the store (0 to 20): 2
+Item added.
+```
+ 
+After adding `C` (Cone set, 20, 2), choosing `3` and searching for `C` gives:
+ 
+```
+Search code: C
+Cone set: 2 of 20 in store, 18 out, 10.0% in store
 WARNING: LOW STOCK! Only 2 left in the store.
 ```
-
+ 
+Choosing `6` with a Football (10 owned, 7 in store, then 3 issued) and the Cone set gives:
+ 
+```
+LOW STOCK: Cone set (2 available)
+Item types: 2
+Units owned: 30
+Units in store: 6
+Units out: 24
+Low-stock items: 1
+```
+ 
 ## Input checks (validation)
-
-If an input is wrong, the program shows an error message and ends. Run it again to try again.
-
+ 
+If an input is wrong, the program shows an error message and **asks again**. Nothing is stored until the input is valid.
+ 
 | Situation | What KitRoom does |
 | --- | --- |
-| Item is not F, C or B | "Error: the item must be F, C or B." |
-| Total is below 1 or above 10000 | "Error: the total must be from 1 to 10000." |
-| Quantity in the store is negative or more than the total | "Error: the quantity in the store must be from 0 to ..." |
-| Action is not 1 or 2 | "Error: the action must be 1 or 2." |
-| Quantity is less than 1 | "Error: the quantity must be at least 1." |
-| Issuing more than is in the store | "Error: only 4 in the store, so 6 cannot be issued." |
-| Returning more than is out | "Error: only 2 is out, so 5 cannot be returned." |
-| Letters typed instead of a number | The number is not accepted, so one of the errors above is shown |
-
+| Menu choice is not a number from 0 to 6 | "Error: please type a number." or "Error: the value must be from 0 to 6." and the choice is asked again |
+| Item code is not a letter | "Error: the code must be a letter." and it asks again |
+| Item code already exists | "Error: that item code already exists." and the record list is unchanged |
+| Record list is full (10 items) | "Error: the record list is full." |
+| Total is below 1 or above 10000 | "Error: the value must be from 1 to 10000." and it asks again |
+| Quantity in the store is negative or more than the total | "Error: the value must be from 0 to ..." and it asks again |
+| Letters typed instead of a number | "Error: please type a number." and it asks again |
+| Name is longer than 19 characters | Only the first 19 characters are kept |
+| Searching, issuing or returning with a code that does not exist | "No item with code ... was found." |
+| Issuing when none are available | "Error: no units of ... are available to issue." |
+| Issuing more than is available | "Error: the value must be from 1 to ..." and it asks again |
+| Returning when none are out | "Error: no units of ... are out." |
+| Returning more than is out | "Error: the value must be from 1 to ..." and it asks again |
+| Searching, issuing, returning, displaying or summarising with no items | "No items recorded yet." |
+ 
 ## Trying it out
-
-Run `./kitroom` and enter the values below, one at a time, pressing Enter after each. Each row is a separate run of the program.
-
-| # | What to enter (in order) | What you should see |
+ 
+Start a fresh run with `./kitroom` and work down the table. Each row follows on from the one before, so the records build up. Press Enter after each value.
+ 
+| # | What to enter | What you should see |
 | --- | --- | --- |
-| 1 | `F`, `10`, `10`, `1`, `3` | "Equipment issued: 3". Available 7, Out 3, In store 70.0%. "Stock level is fine." |
-| 2 | `C`, `5`, `5`, `1`, `3` | Available 2, Out 3. "WARNING: LOW STOCK! Only 2 left in the store." |
-| 3 | `B`, `4`, `1`, `2`, `3` | "Equipment returned: 3". Available 4, Out 0. "All items are back in the store." |
-| 4 | `F`, `10`, `4`, `1`, `6` | "Error: only 4 in the store, so 6 cannot be issued." |
-| 5 | `F`, `10`, `8`, `2`, `5` | "Error: only 2 is out, so 5 cannot be returned." |
-| 6 | `X` | "Error: the item must be F, C or B." |
-| 7 | `F`, `0` | "Error: the total must be from 1 to 10000." |
-| 8 | `F`, `10`, `10`, `3` | "Error: the action must be 1 or 2." |
-| 9 | `F`, `10`, `10`, `1`, `0` | "Error: the quantity must be at least 1." |
-| 10 | `C`, `2`, `1`, `2`, `1` | "Equipment returned: 1". Available 2, Out 0, In store 100.0%. "All items are back in the store." (not the low-stock warning, even though 2 is within the low-stock limit) |
-
-Rows 1 to 3 show the three different stock-level messages. Row 10 checks that "all items are back" wins over the low-stock warning when nothing is out. Rows 4 to 9 show the input checks.
-
+| 1 | `1`, `F`, `Football`, `10`, `7`, then `2` | "Item added." The table shows `F  Football  10  7  3`. |
+| 2 | `1`, `C`, `Cone set`, `20`, `2` | "Item added." The name keeps its space. |
+| 3 | `1`, `B`, `Bibs set`, `15`, `15` | "Item added." Out is 0 for Bibs set. |
+| 4 | `1`, `F` | "Error: that item code already exists." |
+| 5 | `1`, `G`, `Gloves`, `0` | "Error: the value must be from 1 to 10000." It asks for the total again. Enter `10`, `10` to finish. |
+| 6 | `1`, `H`, `Hats`, `5`, `9` | "Error: the value must be from 0 to 5." It asks again. Enter `5` to finish. |
+| 7 | `1`, `J`, `Jerseys`, `abc` | "Error: please type a number." It asks again. Enter `8`, `8` to finish. |
+| 8 | `x` at the menu | "Error: please type a number." and the menu choice is asked again. |
+| 9 | `3`, `f` | "Football: 7 of 10 in store, 3 out, 70.0% in store" and "Stock level is fine." |
+| 10 | `3`, `Z` | "No item with code Z was found." |
+| 11 | `3`, `C` | "Cone set: 2 of 20 in store, 18 out, 10.0% in store" and "WARNING: LOW STOCK! Only 2 left in the store." |
+| 12 | `4`, `F`, `7` | "Equipment issued: 7". Football now has 0 available and 10 out. |
+| 13 | `5`, `F`, `11`, then `10` | 11 is rejected with "Error: the value must be from 1 to 10." and it asks again. 10 gives "Equipment returned: 10". |
+| 14 | `4`, `B`, `0` | "Error: the value must be from 1 to 15." and it asks again. |
+| 15 | `6` | A summary of all items, including a "LOW STOCK" line for the Cone set. |
+| 16 | `0` | "Goodbye." and the program ends. |
+ 
+Rows 5 to 7 add three extra items, so the summary in row 15 will include them. To check the summary against fixed numbers, restart the program and add only the three items from rows 1 to 3. The summary should then show 3 item types, 45 units owned, 24 in store, 21 out and 1 low-stock item (the Cone set).
+ 
 ## Configuration
-
+ 
 These constants are at the top of `kitroom.c`. Change them and compile again.
-
+ 
 | Constant | Default | Meaning |
 | --- | --- | --- |
-| `LOW_STOCK` | `2` | A warning appears when the available quantity is this number or less and some items are still out |
+| `MAX_ITEMS` | `10` | The most records the array can hold |
+| `NAME_LEN` | `20` | The size of the name field, including the end-of-string character (so names can have 19 characters). If you change it, also change the `19` in `readName()` to `NAME_LEN - 1`. |
 | `MAX_STOCK` | `10000` | The biggest total allowed for one item |
-
+| `LOW_STOCK` | `2` | A warning appears when the available quantity is this number or less and some items are still out |
+ 
+## How the program is organised
+ 
+The records are held in an array of structures, one structure for each type of equipment:
+ 
+```c
+struct Item
+{
+    char code;
+    char name[NAME_LEN];
+    int total;
+    int available;
+};
+```
+ 
+`main()` shows the menu and calls one function for each choice. Each function has one job:
+ 
+| Function | Purpose |
+| --- | --- |
+| `addItem` | Add a new validated record and return the new count |
+| `displayItems` | Show all records in a table |
+| `findItem` | Return the position of an item by code, or -1 |
+| `searchItem` | Ask for a code and show one record and its stock level |
+| `calcOut` | Calculate the units currently out |
+| `calcPercent` | Calculate the percentage in the store |
+| `issueItem` | Issue available equipment |
+| `returnItem` | Return equipment that is out |
+| `showSummary` | Show totals and low-stock items |
+| `readInt` | Read a whole number within a range, asking again if it is wrong |
+| `readCode` | Read a letter and change it to a capital |
+| `readName` | Read a name that may contain spaces |
+| `clearInput` | Throw away the rest of the current input line |
+ 
 ## Project structure
-
+ 
 ```
 kitroom/
 ├── kitroom.c       # the whole program
 └── README.md       # this file
 ```
-
+ 
 The compiled program is created when you compile, so it is best not to commit it. Add this to a `.gitignore` file:
-
+ 
 ```
 kitroom
 ```
-
+ 
 ## Known limitations
-
-These are the current limits of version 0.1. Most of them are planned to be fixed in later versions.
-
-- **One transaction per run.** There is no menu that repeats.
-- **No saving.** The stock is typed in each time, and nothing is stored when the program ends.
-- **One item per run.** You choose the item first, and the program does not track all three items at once.
-- **No borrower names or history.** The program does not record who borrowed what.
-- **Wrong input ends the program.** It does not ask again.
-
+ 
+These are the current limits of version 0.4. Most of them are planned to be fixed in later versions.
+ 
+- **No saving.** The records are kept in memory only, so they are lost when the program ends.
+- **No borrower names or history.** The program does not record who borrowed what or when.
+- **At most 10 item types**, each with a one-letter code, so no more than 26 item types are possible even if `MAX_ITEMS` is increased.
+- **Names are limited to 19 characters.** Longer names are cut.
+- **No way to edit or delete a record.** To fix a mistake in a record, restart the program.
 ## Roadmap
-
+ 
 The project grows with the syllabus. Each stage adds one new idea, and the order follows the unit's lecture topics. The plan may change if the syllabus changes.
-
-| Version | Status | Syllabus topic | Planned features |
+ 
+| Version | Status | Syllabus topic | Features |
 | --- | --- | --- | --- |
-| **0.1** | Current | C program structure, lexical elements, data types, variables, constants, operators, input/output, selection | One item and one transaction per run, validation with `if...else`, low-stock warning |
-| **0.2** | Planned | Program control structures (loops) | A menu that repeats until Exit, asking again after invalid input instead of ending, several transactions per run |
-| **0.3** | Planned | Secondary data types (arrays and strings) | All three items tracked at once with arrays, borrower names stored as text |
-| **0.4** | Planned | Functions | Code split into functions (issue, return, show stock, input checking) |
+| **0.1** | Done (CAT I) | C program structure, lexical elements, data types, variables, constants, operators, input/output, selection | One item and one transaction per run, validation with `if...else`, low-stock warning |
+| **0.2** | Done (in 0.4) | Program control structures (loops) | A menu that repeats until Exit, asking again after invalid input instead of ending, several transactions per run |
+| **0.3** | Partly done (in 0.4) | Secondary data types (arrays and strings) | Several items tracked at once in an array of structures, with names stored as text. Borrower names are still planned. |
+| **0.4** | **Current** (Assignment II) | Functions | Code split into functions (add, display, search, issue, return, summary, input checking) |
 | **0.5** | Planned | File handling | Stock and borrowing history saved to text files and loaded when the program starts, plus a "view history" option |
-
-Version 0.1 is the design described in Assignment 1. The later versions are planned extensions that go beyond it: a menu-driven program that tracks all three items at once, saves the stock, and keeps a borrowing history.
-
+ 
+Assignment II combined versions 0.2 to 0.4 into one step, so the program jumped from version 0.1 to 0.4. The remaining plan is to save the records and keep a borrowing history.
+ 
 ## Author
-
+ 
 Lameck Odhiambo Otieno, Registration No. 17/00207.
 STU 1201: Introduction to Programming, KCA University, September-December 2026.
