@@ -1,178 +1,419 @@
 /*
-   Program    : KitRoom - Equipment Stock and Lending Checker (version 0.1)
+   Program    : KitRoom - Equipment Stock and Lending Checker (version 0.4)
    Unit       : STU 1201 Introduction to Programming
-   Assessment : CAT 1 - Program Implementation
+   Assessment : Assignment II - Multiple Records and Modular Programming
    Student    : Lameck Odhiambo Otieno (Reg No: 17/00207)
 
    What the program does:
-   This program implements the KitRoom design from Assignment 1. The
-   equipment officer of a student sports club enters the stock of ONE item,
-   then records ONE transaction (issue or return). The program updates the
-   available quantity, works out how many items are still out
-   (out = total - available), shows the percentage still in the store, and
-   warns when the stock is low.
+   KitRoom extends the CAT I program. The equipment officer of a student
+   sports club keeps several equipment records (up to MAX_ITEMS) in an array
+   of structures. A repeating menu lets the officer add an item, display all
+   items, search for an item by code, issue equipment, return equipment and
+   show a summary. Records are kept only while the program is running, so
+   nothing is saved when the program ends.
 
-   Items:    F = Football    C = Cone set    B = Bibs set
-   Actions:  1 = Issue equipment    2 = Return equipment
+   Each record holds a one-letter code, a name (spaces allowed), the total
+   quantity owned and the quantity available. The quantity out
+   (out = total - available) and the percentage in the store are calculated
+   when they are needed and are never stored.
 
-   Work in progress: this version only uses what has been covered in class
-   so far. It handles one transaction per run, and nothing is saved when the
-   program ends. More features will be added as the syllabus advances
-   (see the roadmap in README.md).
+   New since CAT I:
+   - Structure and array of structures (struct Item, items[MAX_ITEMS])
+   - User-defined functions with parameters and return values
+   - A repeating menu (while loop) with if...else if selection
+   - Input checking that asks again instead of stopping the program
 
    Project page: https://github.com/lameck-otieno/kitroom
    Roadmap:      https://github.com/lameck-otieno/kitroom#roadmap
-
-   C concepts used:
-   - Lexical elements: keywords, identifiers, constants, operators, comments
-   - Constants:        #define LOW_STOCK and #define MAX_STOCK
-   - Data types:       int, char and float
-   - Variables:        declared with a starting value
-   - Operators:        arithmetic (- + * /), relational (< > <= >= == !=),
-                       logical (|| &&), assignment (=) and a typecast (float)
-   - Input/output:     printf() and scanf()
-   - Selection:        if, else if, else and nested if
-   - Program exit:     return 0 (normal end) and return 1 (stopped after an
-                       error)
 */
 
 #include <stdio.h>
 
 /* Constants */
-#define LOW_STOCK 2        /* warn when available is this number or less */
+#define MAX_ITEMS 10       /* most records the array can hold */
+#define NAME_LEN 20        /* name size, including the end-of-string character */
 #define MAX_STOCK 10000    /* biggest total allowed for one item */
+#define LOW_STOCK 2        /* warn when available is this number or less */
+
+/* One equipment record */
+struct Item
+{
+    char code;
+    char name[NAME_LEN];
+    int total;
+    int available;
+};
+
+/* Function prototypes */
+int addItem(struct Item items[], int count);
+void displayItems(struct Item items[], int count);
+int calcOut(struct Item it);
+void clearInput(void);
+int readInt(char prompt[], int min, int max);
+char readCode(char prompt[]);
+void readName(char prompt[], char name[]);
+int findItem(struct Item items[], int count, char code);
+float calcPercent(struct Item it);
+void searchItem(struct Item items[], int count);
+void issueItem(struct Item items[], int count);
+void returnItem(struct Item items[], int count);
+void showSummary(struct Item items[], int count);
+
+
 
 int main()
 {
-    /* Variables. Each one starts at a value that FAILS its check below, so if
-       the user types something that is not a number, the value stays the same
-       and the program shows an error message. */
-    char item = ' ';       /* F, C or B */
-    int total = 0;         /* total quantity the club owns */
-    int available = -1;    /* quantity in the store now */
-    int action = 0;        /* 1 = issue, 2 = return */
-    int quantity = 0;      /* quantity in this transaction */
-    int out = 0;           /* quantity still out (total - available) */
-    float percent = 0;     /* percentage of the stock in the store */
+    struct Item items[MAX_ITEMS];
+    int count = 0;       /* how many records are stored */
+    int choice = -1;     /* menu choice; -1 so the loop starts */
 
-    printf("=== KitRoom: Equipment Stock Checker ===\n\n");
-
-    /* ---------- Step 1: choose the item ---------- */
-    printf("Item (F = Football, C = Cone set, B = Bibs set): ");
-    scanf(" %c", &item);   /* the space before %c skips any leftover Enter */
-
-    /* Selection: three valid outcomes, otherwise an error */
-    if (item == 'F' || item == 'f')
+    while (choice != 0)
     {
-        printf("You chose: Football\n");
-    }
-    else if (item == 'C' || item == 'c')
-    {
-        printf("You chose: Cone set\n");
-    }
-    else if (item == 'B' || item == 'b')
-    {
-        printf("You chose: Bibs set\n");
-    }
-    else
-    {
-        printf("Error: the item must be F, C or B.\n");
-        return 1;          /* stop the program because the input is wrong */
-    }
+        printf("\n=== KitRoom v0.4: Equipment Stock Checker ===\n");
+        printf("1. Add an item\n");
+        printf("2. Display all items\n");
+        printf("3. Search for an item\n");
+        printf("4. Issue equipment\n");
+        printf("5. Return equipment\n");
+        printf("6. Show summary\n");
+        printf("0. Exit\n");
+        choice = readInt("Choice", 0, 6);   
 
-    /* ---------- Step 2: enter the current stock (with validation) ---------- */
-    printf("Total quantity the club owns (1 to %d): ", MAX_STOCK);
-    scanf("%d", &total);
-
-    if (total < 1 || total > MAX_STOCK)
-    {
-        printf("Error: the total must be from 1 to %d.\n", MAX_STOCK);
-        return 1;
-    }
-
-    printf("Quantity in the store now (0 to %d): ", total);
-    scanf("%d", &available);
-
-    if (available < 0 || available > total)
-    {
-        printf("Error: the quantity in the store must be from 0 to %d.\n",
-               total);
-        return 1;
-    }
-
-    out = total - available;
-    printf("Currently out: %d\n\n", out);
-
-    /* ---------- Step 3: choose the action ---------- */
-    printf("Action (1 = Issue, 2 = Return): ");
-    scanf("%d", &action);
-
-    if (action != 1 && action != 2)
-    {
-        printf("Error: the action must be 1 or 2.\n");
-        return 1;
-    }
-
-    printf("Quantity: ");
-    scanf("%d", &quantity);
-
-    if (quantity < 1)
-    {
-        printf("Error: the quantity must be at least 1.\n");
-        return 1;
-    }
-
-    /* ---------- Step 4: process the transaction ---------- */
-    if (action == 1)
-    {
-        /* Issue: we cannot give out more than is in the store */
-        if (quantity > available)
+        if (choice == 1)
         {
-            printf("Error: only %d in the store, so %d cannot be issued.\n",
-                   available, quantity);
-            return 1;
+            count = addItem(items, count);
         }
-        available = available - quantity;
-        printf("\nEquipment issued: %d\n", quantity);
-    }
-    else
-    {
-        /* Return: we cannot take back more than is out */
-        if (quantity > out)
+        else if (choice == 2)
         {
-            printf("Error: only %d is out, so %d cannot be returned.\n",
-                   out, quantity);
-            return 1;
+            displayItems(items, count);
         }
-        available = available + quantity;
-        printf("\nEquipment returned: %d\n", quantity);
+        else if (choice == 3)
+        {
+            searchItem(items, count);
+        }
+        else if (choice == 4)
+        {
+            issueItem(items, count);
+        }
+        else if (choice == 5)
+        {
+            returnItem(items, count);
+        }
+        else if (choice == 6)
+        {
+            showSummary(items, count);
+        }
+        else if (choice == 0)
+        {
+            printf("Goodbye.\n");
+        }
     }
 
-    /* ---------- Step 5: show the updated stock ---------- */
-    out = total - available;
-    percent = (float) available / total * 100;   /* typecast to keep decimals */
+    return 0;
+}
 
-    printf("\n--- Updated stock ---\n");
-    printf("Total:     %d\n", total);
-    printf("Available: %d\n", available);
-    printf("Out:       %d\n", out);
-    printf("In store:  %.1f%%\n", percent);
+/* Totals for all records, and a list of low-stock items. */
+void showSummary(struct Item items[], int count)
+{
+    int i;
+    int totalAll = 0;
+    int availableAll = 0;
+    int lowCount = 0;
 
-    /* Selection: three different outcomes for the stock level.
-       "All back" is checked first, so a small stock with nothing out is not
-       reported as low. */
+    if (count == 0)
+    {
+        printf("No items recorded yet.\n");
+        return;
+    }
+
+    for (i = 0; i < count; i++)
+    {
+        totalAll = totalAll + items[i].total;
+        availableAll = availableAll + items[i].available;
+
+        if (calcOut(items[i]) > 0 && items[i].available <= LOW_STOCK)
+        {
+            printf("LOW STOCK: %s (%d available)\n",
+                   items[i].name, items[i].available);
+            lowCount++;
+        }
+    }
+
+    printf("Item types: %d\n", count);
+    printf("Units owned: %d\n", totalAll);
+    printf("Units in store: %d\n", availableAll);
+    printf("Units out: %d\n", totalAll - availableAll);
+    printf("Low-stock items: %d\n", lowCount);
+}
+
+
+/* Take quantity out of the store (never more than is available). */
+void issueItem(struct Item items[], int count)
+{
+    char code;
+    int pos;
+    int quantity;
+
+    if (count == 0)
+    {
+        printf("No items recorded yet.\n");
+        return;
+    }
+
+    code = readCode("Issue code");
+    pos = findItem(items, count, code);
+
+    if (pos == -1)
+    {
+        printf("No item with code %c was found.\n", code);
+        return;
+    }
+
+    if (items[pos].available < 1)
+    {
+        printf("Error: no units of %s are available to issue.\n",
+               items[pos].name);
+        return;
+    }
+
+    quantity = readInt("Quantity to issue", 1, items[pos].available);
+    items[pos].available = items[pos].available - quantity;
+    printf("Equipment issued: %d\n", quantity);
+}
+
+/* Put quantity back in the store (never more than is out). */
+void returnItem(struct Item items[], int count)
+{
+    char code;
+    int pos;
+    int quantity;
+    int out;
+
+    if (count == 0)
+    {
+        printf("No items recorded yet.\n");
+        return;
+    }
+
+    code = readCode("Return code");
+    pos = findItem(items, count, code);
+
+    if (pos == -1)
+    {
+        printf("No item with code %c was found.\n", code);
+        return;
+    }
+
+    out = calcOut(items[pos]);
+
+    if (out < 1)
+    {
+        printf("Error: no units of %s are out.\n", items[pos].name);
+        return;
+    }
+
+    quantity = readInt("Quantity to return", 1, out);
+    items[pos].available = items[pos].available + quantity;
+    printf("Equipment returned: %d\n", quantity);
+}
+
+
+/* Percentage of the stock in the store (the cast avoids integer division). */
+float calcPercent(struct Item it)
+{
+    return (float) it.available / it.total * 100;
+}
+
+/* Search by item code and show the record and its stock level. */
+void searchItem(struct Item items[], int count)
+{
+    char code;
+    int pos;
+    int out;
+
+    if (count == 0)
+    {
+        printf("No items recorded yet.\n");
+        return;
+    }
+
+    code = readCode("Search code");
+    pos = findItem(items, count, code);
+
+    if (pos == -1)
+    {
+        printf("No item with code %c was found.\n", code);
+        return;
+    }
+
+    out = calcOut(items[pos]);
+    printf("%s: %d of %d in store, %d out, %.1f%% in store\n",
+           items[pos].name, items[pos].available, items[pos].total,
+           out, calcPercent(items[pos]));
+
     if (out == 0)
     {
         printf("All items are back in the store.\n");
     }
-    else if (available <= LOW_STOCK)
+    else if (items[pos].available <= LOW_STOCK)
     {
-        printf("WARNING: LOW STOCK! Only %d left in the store.\n", available);
+        printf("WARNING: LOW STOCK! Only %d left in the store.\n",
+               items[pos].available);
     }
     else
     {
         printf("Stock level is fine.\n");
     }
+}
 
-    return 0;
+
+/* Throw away the rest of the current input line. */
+void clearInput(void)
+{
+    int ch;
+
+    ch = getchar();
+    while (ch != '\n' && ch != EOF)
+    {
+        ch = getchar();
+    }
+}
+
+/* Ask until the user types a whole number from min to max. */
+int readInt(char prompt[], int min, int max)
+{
+    int value = 0;
+    int ok = 0;
+
+    while (ok == 0)
+    {
+        printf("%s (%d to %d): ", prompt, min, max);
+
+        if (scanf("%d", &value) != 1)
+        {
+            printf("Error: please type a number.\n");
+            clearInput();
+        }
+        else if (value < min || value > max)
+        {
+            printf("Error: the value must be from %d to %d.\n", min, max);
+            clearInput();
+        }
+        else
+        {
+            clearInput();
+            ok = 1;
+        }
+    }
+
+    return value;
+}
+
+/* Ask until the user types a letter; return it as a capital letter. */
+char readCode(char prompt[])
+{
+    char code = ' ';
+
+    while (code < 'A' || code > 'Z')
+    {
+        printf("%s: ", prompt);
+        scanf(" %c", &code);
+        clearInput();
+
+        if (code >= 'a' && code <= 'z')
+        {
+            code = code - 'a' + 'A';     /* small letter to capital */
+        }
+
+        if (code < 'A' || code > 'Z')
+        {
+            printf("Error: the code must be a letter.\n");
+        }
+    }
+
+    return code;
+}
+
+/* Read a name that may contain spaces (at most NAME_LEN - 1 characters). */
+void readName(char prompt[], char name[])
+{
+    printf("%s: ", prompt);
+    scanf(" %19[^\n]", name);      /* 19 = NAME_LEN - 1 */
+    clearInput();
+}
+
+/* Return the position of the item with this code, or -1 if not found. */
+int findItem(struct Item items[], int count, char code)
+{
+    int i;
+
+    for (i = 0; i < count; i++)
+    {
+        if (items[i].code == code)
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+
+/* Add one new record. Returns the new number of records. */
+int addItem(struct Item items[], int count)
+{
+    char code;
+
+    if (count >= MAX_ITEMS)
+    {
+        printf("Error: the record list is full.\n");
+        return count;
+    }
+
+    code = readCode("Item code");
+
+    if (findItem(items, count, code) != -1)
+    {
+        printf("Error: that item code already exists.\n");
+        return count;
+    }
+
+    items[count].code = code;
+    readName("Item name", items[count].name);
+    items[count].total = readInt("Total quantity", 1, MAX_STOCK);
+    items[count].available =
+        readInt("Quantity in the store", 0, items[count].total);
+
+    printf("Item added.\n");
+    return count + 1;
+}
+
+
+/* Show every record in a table. */
+void displayItems(struct Item items[], int count)
+{
+    int i;
+
+    if (count == 0)
+    {
+        printf("No items recorded yet.\n");
+        return;
+    }
+
+    printf("\n%-5s %-19s %5s  %9s  %3s\n",
+           "Code", "Name", "Total", "Available", "Out");
+
+    for (i = 0; i < count; i++)
+    {
+        printf("%-5c %-19s %5d  %9d  %3d\n",
+               items[i].code, items[i].name,
+               items[i].total, items[i].available,
+               calcOut(items[i]));
+    }
+}
+
+/* Units currently out = total - available. */
+int calcOut(struct Item it)
+{
+    return it.total - it.available;
 }
