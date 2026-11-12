@@ -1,0 +1,8 @@
+F|Football|10|7
+C|Cone set|20|2
+B|Bibs set|15|15
+N|Netball|8|5
+V|Volleyball|6|6
+R|Skipping rope|12|9
+H|Hockey stick|14|11
+G|Gloves|10|10
