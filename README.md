@@ -2,12 +2,12 @@
  
 **An equipment stock and lending checker for a student sports club, written in C.**
  
-> **Status: version 0.4 (Assignment II).**
-> This project is built in stages as the STU 1201 syllabus advances. Version 0.4 is a menu-driven program that keeps several equipment records in an array of structures and uses user-defined functions. Records are still kept in memory only. See the [Roadmap](#roadmap) for what comes next.
+> **Status: version 0.5 (Assignment III).**
+> This project is built in stages as the STU 1201 syllabus advances. Version 0.5 is a menu-driven program that keeps several equipment records in an array of structures, uses user-defined functions and saves records to a text file. See the [Roadmap](#roadmap) for what comes next.
  
 KitRoom helps an equipment officer keep track of shared sports equipment such as footballs, cone sets and bib sets. You add the equipment the club owns, then issue and return it as it is borrowed. The program keeps every record up to date, works out how many items are out, and warns you when stock is low.
  
-This project is for **STU 1201: Introduction to Programming** at KCA University. Version 0.1 was CAT I (Program Implementation). Version 0.4 is **Assignment II: Multiple Records and Modular Programming**. Both come from the KitRoom design in Assignment 1, which was inspired by how equipment is tracked in a notebook at a student sports club.
+This project is for **STU 1201: Introduction to Programming** at KCA University. Version 0.1 was CAT I (Program Implementation). Version 0.4 was **Assignment II: Multiple Records and Modular Programming**, and version 0.5 is **Assignment III: File Handling and System Integration**. Both come from the KitRoom design in Assignment 1, which was inspired by how equipment is tracked in a notebook at a student sports club.
  
 ## Contents
  
@@ -33,6 +33,8 @@ This project is for **STU 1201: Introduction to Programming** at KCA University.
 - Shows a **summary**: the number of item types, units owned, units in store, units out and a list of low-stock items.
 - Calculates `out = total - available` and the percentage in store when they are needed, so these values can never disagree with the stored quantities.
 - Checks every input and **asks again** instead of stopping when something is wrong.
+- **Saves** records to `kitroom_data.txt` and **loads** them when the program starts, so stock is preserved between runs.
+- Lets you save manually, reload from disk, or show the exact contents of the data file.
 ## Requirements
  
 - A C compiler such as **GCC**.
@@ -89,7 +91,7 @@ Replace `YourName` with your Windows username. Working inside the Linux file sys
  
 ## How to use it
  
-The program shows this menu and asks for a number from 0 to 6:
+The program shows this menu and asks for a number from 0 to 9:
  
 | Choice | What it does |
 | --- | --- |
@@ -99,24 +101,30 @@ The program shows this menu and asks for a number from 0 to 6:
 | `4` | **Issue equipment.** Asks for a code and a quantity, and subtracts it from the available quantity. |
 | `5` | **Return equipment.** Asks for a code and a quantity, and adds it back. |
 | `6` | **Show summary** of all items. |
-| `0` | **Exit.** |
+| `7` | **Save records** to `kitroom_data.txt`. |
+| `8` | **Load records** from `kitroom_data.txt`, replacing the records in memory. |
+| `9` | **Show file contents** exactly as stored on disk. |
+| `0` | **Exit.** If there are unsaved changes, KitRoom offers to save them first. |
  
 Item codes can be capital or small letters. Small letters are changed to capitals, so `f` and `F` are the same item.
  
-Records are lost when you exit, so add your items again each time you run the program.
+Records are loaded from `kitroom_data.txt` when the program starts. The file is created when you first save.
  
 ### Example
  
 ```
-=== KitRoom v0.4: Equipment Stock Checker ===
+=== KitRoom v0.5: Equipment Stock Checker ===
 1. Add an item
 2. Display all items
 3. Search for an item
 4. Issue equipment
 5. Return equipment
 6. Show summary
+7. Save records to file
+8. Load records from file
+9. Show file contents
 0. Exit
-Choice (0 to 6): 1
+Choice (0 to 9): 1
 Item code: C
 Item name: Cone set
 Total quantity (1 to 10000): 20
@@ -149,7 +157,7 @@ If an input is wrong, the program shows an error message and **asks again**. Not
  
 | Situation | What KitRoom does |
 | --- | --- |
-| Menu choice is not a number from 0 to 6 | "Error: please type a number." or "Error: the value must be from 0 to 6." and the choice is asked again |
+| Menu choice is not a number from 0 to 9 | "Error: please type a number." or "Error: the value must be from 0 to 9." and the choice is asked again |
 | Item code is not a letter | "Error: the code must be a letter." and it asks again |
 | Item code already exists | "Error: that item code already exists." and the record list is unchanged |
 | Record list is full (10 items) | "Error: the record list is full." |
@@ -237,6 +245,7 @@ struct Item
 ```
 kitroom/
 ├── kitroom.c       # the whole program
+├── kitroom_data.txt # saved equipment records
 └── README.md       # this file
 ```
  
@@ -248,9 +257,9 @@ kitroom
  
 ## Known limitations
  
-These are the current limits of version 0.4. Most of them are planned to be fixed in later versions.
+These are the current limits of version 0.5. Most of them are planned to be fixed in later versions.
  
-- **No saving.** The records are kept in memory only, so they are lost when the program ends.
+- **No borrowing history.** The program saves current stock but does not record who borrowed what or when.
 - **No borrower names or history.** The program does not record who borrowed what or when.
 - **At most 10 item types**, each with a one-letter code, so no more than 26 item types are possible even if `MAX_ITEMS` is increased.
 - **Names are limited to 19 characters.** Longer names are cut.
@@ -264,10 +273,10 @@ The project grows with the syllabus. Each stage adds one new idea, and the order
 | **0.1** | Done (CAT I) | C program structure, lexical elements, data types, variables, constants, operators, input/output, selection | One item and one transaction per run, validation with `if...else`, low-stock warning |
 | **0.2** | Done (in 0.4) | Program control structures (loops) | A menu that repeats until Exit, asking again after invalid input instead of ending, several transactions per run |
 | **0.3** | Partly done (in 0.4) | Secondary data types (arrays and strings) | Several items tracked at once in an array of structures, with names stored as text. Borrower names are still planned. |
-| **0.4** | **Current** (Assignment II) | Functions | Code split into functions (add, display, search, issue, return, summary, input checking) |
-| **0.5** | Planned | File handling | Stock and borrowing history saved to text files and loaded when the program starts, plus a "view history" option |
+| **0.4** | Done (Assignment II) | Functions | Code split into functions (add, display, search, issue, return, summary, input checking) |
+| **0.5** | **Current** (Assignment III) | File handling | Current stock saved to a text file and loaded when the program starts, with save, reload and file-view options |
  
-Assignment II combined versions 0.2 to 0.4 into one step, so the program jumped from version 0.1 to 0.4. The remaining plan is to save the records and keep a borrowing history.
+Assignment II combined versions 0.2 to 0.4 into one step, so the program jumped from version 0.1 to 0.4. Version 0.5 adds current-stock persistence; a borrowing history is still planned.
  
 ## Author
  
