@@ -18,6 +18,7 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 
 /* Constants */
 #define MAX_ITEMS 15       /* most records the array can hold */
@@ -329,11 +330,18 @@ int readInt(char prompt[], int min, int max)
 {
     int value = 0;
     int ok = 0;
+    int result;
 
     while (ok == 0)
     {
         printf("%s (%d to %d): ", prompt, min, max);
-        if (scanf("%d", &value) != 1)
+        result = scanf("%d", &value);
+        if (result == EOF)
+        {
+            printf("\nInput closed. Goodbye.\n");
+            exit(EXIT_SUCCESS);
+        }
+        else if (result != 1)
         {
             printf("Error: please type a number.\n");
             clearInput();
@@ -356,11 +364,17 @@ int readInt(char prompt[], int min, int max)
 char readCode(char prompt[])
 {
     char code = ' ';
+    int result;
 
     while (code < 'A' || code > 'Z')
     {
         printf("%s: ", prompt);
-        scanf(" %c", &code);
+        result = scanf(" %c", &code);
+        if (result == EOF)
+        {
+            printf("\nInput closed. Goodbye.\n");
+            exit(EXIT_SUCCESS);
+        }
         clearInput();
         if (code >= 'a' && code <= 'z')
         {
@@ -377,8 +391,15 @@ char readCode(char prompt[])
 /* Read a name that may contain spaces (at most NAME_LEN - 1 characters). */
 void readName(char prompt[], char name[])
 {
+    int result;
+
     printf("%s: ", prompt);
-    scanf(" %19[^\n]", name);      /* 19 = NAME_LEN - 1 */
+    result = scanf(" %19[^\n]", name);      /* 19 = NAME_LEN - 1 */
+    if (result == EOF)
+    {
+        printf("\nInput closed. Goodbye.\n");
+        exit(EXIT_SUCCESS);
+    }
     clearInput();
 }
 
