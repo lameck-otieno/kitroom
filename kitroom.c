@@ -1,34 +1,26 @@
 /*
-   Program    : KitRoom - Equipment Stock and Lending Checker (version 0.5)
+   Program    : KitRoom - Equipment Stock and Lending Checker (version 0.6)
    Unit       : STU 1201 Introduction to Programming
-   Assessment : Assignment III - File Handling and System Integration
+   Assessment : CAT 2 - Final Report
    Student    : Lameck Odhiambo Otieno (Reg No: 17/00207)
 
    What the program does:
    KitRoom extends the CAT I program. The equipment officer of a student
-   sports club keeps several equipment records (up to MAX_ITEMS) in an array
-   of structures. A repeating menu lets the officer add an item, display all
-   items, search for an item by code, issue equipment, return equipment and
-   show a summary.
+   sports club keeps up to MAX_ITEMS equipment records in an array of
+   structures. A repeating menu lets the officer add an item, display all
+   items, search by code, issue equipment, return equipment, show a summary,
+   and save/load the records to a text file (kitroom_data.txt) so they are
+   still there after the program is closed. File format: one record per line,
+   fields separated by | (example line: C|Cone set|20|2)
 
-   NEW in version 0.5: the records can be saved to a text file
-   (kitroom_data.txt) and are loaded again when the program starts, so they
-   are still there after the program is closed. File format: one record per
-   line, fields separated by |   (example line:  C|Cone set|20|2)
-
-   Each record holds a one-letter code, a name (spaces allowed), the total
-   quantity owned and the quantity available. The quantity out
-   (out = total - available) and the percentage in the store are calculated
-   when they are needed and are never stored.
-
-   Project page: https://github.com/lameck-otieno/kitroom
-   Roadmap:      https://github.com/lameck-otieno/kitroom#roadmap
+   NEW in version 0.6: MAX_ITEMS raised from 10 to 15 so the program can hold
+   more than 10 records; the sample data file now has 12 records.
 */
 
 #include <stdio.h>
 
 /* Constants */
-#define MAX_ITEMS 10       /* most records the array can hold */
+#define MAX_ITEMS 15       /* most records the array can hold */
 #define NAME_LEN 20        /* name size, including the end-of-string character */
 #define MAX_STOCK 10000    /* biggest total allowed for one item */
 #define LOW_STOCK 2        /* warn when available is this number or less */
@@ -83,7 +75,7 @@ int main()
 
     while (choice != 0)
     {
-        printf("\n=== KitRoom v0.5: Equipment Stock Checker ===\n");
+        printf("\n=== KitRoom v0.6: Equipment Stock Checker ===\n");
         printf("1. Add an item\n");
         printf("2. Display all items\n");
         printf("3. Search for an item\n");
