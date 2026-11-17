@@ -6,3 +6,7 @@ V|Volleyball|6|6
 R|Skipping rope|12|9
 H|Hockey stick|14|11
 G|Gloves|10|10
+J|Jerseys|18|14
+P|Pump|4|3
+T|Training net|5|1
+W|Whistle|6|4
