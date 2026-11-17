@@ -338,7 +338,7 @@ int readInt(char prompt[], int min, int max)
         result = scanf("%d", &value);
         if (result == EOF)
         {
-            printf("\nInput closed. Goodbye.\n");
+            printf("\nInput ended. KitRoom is closing.\n");
             exit(EXIT_SUCCESS);
         }
         else if (result != 1)
@@ -372,7 +372,7 @@ char readCode(char prompt[])
         result = scanf(" %c", &code);
         if (result == EOF)
         {
-            printf("\nInput closed. Goodbye.\n");
+            printf("\nInput ended. KitRoom is closing.\n");
             exit(EXIT_SUCCESS);
         }
         clearInput();
@@ -397,7 +397,7 @@ void readName(char prompt[], char name[])
     result = scanf(" %19[^\n]", name);      /* 19 = NAME_LEN - 1 */
     if (result == EOF)
     {
-        printf("\nInput closed. Goodbye.\n");
+        printf("\nInput ended. KitRoom is closing.\n");
         exit(EXIT_SUCCESS);
     }
     clearInput();
